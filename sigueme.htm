@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Servicios de Geolocalización</title>
+	<script>
+		var iPositionId = null;
+		
+		function monitorearPosicion(){
+		
+			if (navigator.geolocation)
+			{
+				var oOpciones = {
+					enableHighAccuracy: false, // para ahorro de batería
+					timeout: 6000, // esperaremos hasta seis segundos para obtener la posición
+					maximumAge: 0 // obtener la posición reciente no la de la caché
+				};
+				iPositionId = navigator.geolocation.watchPosition(refrescarPosicion, controlarErrores, oOpciones);
+				
+				document.getElementById("btnDetener").disabled = false;
+			}
+			else
+			{
+				alert("Lo siento, tu navegador no soporta los servicios de geolocalización.");
+			}
+		}
+		
+		function refrescarPosicion(oPosition){
+			
+			var lLongitud = oPosition.coords.longitude;
+			var lLatitud = oPosition.coords.latitude;
+
+			window.open("http://maps.google.com/maps?q=loc:" + lLatitud + "," + lLongitud, "miMapa");
+		}
+		
+		function controlarErrores(oError){
+		
+			var x = document.getElementById("pResultado");
+			
+			switch(oError.code) {
+				case oError.PERMISSION_DENIED:
+				  x.innerHTML = "El usuario negó el acceso a su geolocalización."
+				  break;
+				case oError.POSITION_UNAVAILABLE:
+				  x.innerHTML = "Los datos de la posición no están disponibles."
+				  break;
+				case oError.TIMEOUT:
+				  x.innerHTML = "Se ha agotado el tiempo de espera para determinar la posición."
+				  break;
+				default:
+				  x.innerHTML = "Un error inesperado ocurrió."
+				  break;
+			}
+		}
+		
+		function detenerMonitoreo(){
+		
+			if (iPositionId) navigator.geolocation.clearWatch(iPositionId);
+			
+			document.getElementById("pResultado").innerHTML = "";
+			
+			document.getElementById("btnDetener").disabled = true;
+			
+			alert("He dejado de seguirte, hasta luego.");
+		}
+	</script>
+</head>
+<body>
+	<div id="divContenido">
+		<h4>Sígueme</h4>
+		<p>Ejemplo del método watchPosition() del objeto navigator.geolocation.</p>
+		<p>La idea es probar este ejemplo desde un dispositivo móvil con el GPS habilitado para notar el cambio de posición en el mapa.</p>
+		<input type="button" id="btnSeguir" name="btnSeguir" value="Sígueme" onclick="monitorearPosicion();" /><br /><br />
+		<input type="button" id="btnDetener" name="btnDetener" value="Detener seguimiento" onclick="detenerMonitoreo();" disabled /><br /><br />
+		<div id="pResultado"></div>
+	</div>
+	
+</body>
+</html>
